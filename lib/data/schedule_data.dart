@@ -1,0 +1,68 @@
+class ScheduleData {
+  int CD_AGENDAMENTO;
+  String NM_FANTASIA;
+  DateTime DT_INICIO;
+  DateTime DT_FIM;
+  int CD_LOCAL_INSTALACAO;
+  String NM_LOCAL_INSTALACAO;
+  int NR_TIPO_AGENDAMENTO;
+  String DS_TIPO_AGENDAMENTO;
+  String DS_PLACA;
+  String DS_CHASSI;
+  String NM_MODELO;
+  String NM_PESSOA_BENEFICIARIO;
+  int NR_STATUS;
+  int NR_QTD_FOTOS;
+  int NR_QTD_FOTOS_APROVADAS;
+  int NR_QTD_FOTOS_REPROVADAS;
+  String NR_CEP;
+  String DS_SEGMENTO;
+  String DS_TIPO_PRODUTO;
+
+  ScheduleData();
+
+  ScheduleData.fromJson(Map<String, dynamic> json)
+      : CD_AGENDAMENTO = json['CD_AGENDAMENTO'],
+        NM_FANTASIA = json["NM_FANTASIA"],
+        DT_INICIO = DateTime.parse(json["DT_INICIO"]),
+        DT_FIM = DateTime.parse(json["DT_FIM"]),
+        CD_LOCAL_INSTALACAO = json["CD_LOCAL_INSTALACAO"],
+        NM_LOCAL_INSTALACAO = json["NM_LOCAL_INSTALACAO"],
+        NR_TIPO_AGENDAMENTO = json["NR_TIPO_AGENDAMENTO"],
+        DS_TIPO_AGENDAMENTO = json["DS_TIPO_AGENDAMENTO"],
+        DS_PLACA = json["DS_PLACA"],
+        DS_CHASSI = json["DS_CHASSI"],
+        NM_MODELO = json["NM_MODELO"],
+        NM_PESSOA_BENEFICIARIO = json["NM_PESSOA_BENEFICIARIO"],
+        NR_STATUS = json["NR_STATUS"],
+        NR_QTD_FOTOS = json["NR_QTD_FOTOS"],
+        NR_QTD_FOTOS_APROVADAS = json["NR_QTD_FOTOS_APROVADAS"],
+        NR_QTD_FOTOS_REPROVADAS = json["NR_QTD_FOTOS_REPROVADAS"],
+        NR_CEP = json["NR_CEP"],
+        DS_SEGMENTO = json["DS_SEGMENTO"],
+        DS_TIPO_PRODUTO = json["DS_TIPO_PRODUTO"];
+
+  Map<String, dynamic> toMap() {
+    return {
+      "CD_AGENDAMENTO": CD_AGENDAMENTO,
+      "NM_FANTASIA": NM_FANTASIA,
+      "DT_INICIO": DT_INICIO,
+      "DT_FIM": DT_FIM,
+      "CD_LOCAL_INSTALACAO": CD_LOCAL_INSTALACAO,
+      "NM_LOCAL_INSTALACAO": NM_LOCAL_INSTALACAO,
+      "NR_TIPO_AGENDAMENTO": NR_TIPO_AGENDAMENTO,
+      "DS_TIPO_AGENDAMENTO": DS_TIPO_AGENDAMENTO,
+      "DS_PLACA": DS_PLACA,
+      "DS_CHASSI": DS_CHASSI,
+      "NM_MODELO": NM_MODELO,
+      "NM_PESSOA_BENEFICIARIO": NM_PESSOA_BENEFICIARIO,
+      "NR_STATUS": NR_STATUS,
+      "NR_QTD_FOTOS": NR_QTD_FOTOS,
+      "NR_QTD_FOTOS_APROVADAS": NR_QTD_FOTOS_APROVADAS,
+      "NR_QTD_FOTOS_REPROVADAS": NR_QTD_FOTOS_REPROVADAS,
+      "NR_CEP": NR_CEP,
+      "DS_SEGMENTO": DS_SEGMENTO,
+      "DS_TIPO_PRODUTO": DS_TIPO_PRODUTO
+    };
+  }
+}
