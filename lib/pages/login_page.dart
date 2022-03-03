@@ -140,14 +140,17 @@ class _LoginPageState extends State<LoginPage> {
   void _onSuccess() async {
     final recContact = await Navigator.push(context,
         MaterialPageRoute(builder: (context) => CardStore()));
-
-    /*Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: (context) => CardStore()));*/
   }
 
   void _onFail() {
     _scaffoldKey.currentState.showSnackBar(SnackBar(
-      content: Text("Falha ao Entrar!"),
+      content:Container(
+        height: 20.0,
+        child: Align(
+          child: Text("Falha ao Entrar!"),
+          alignment: Alignment.center,
+        ),
+      ),
       backgroundColor: Colors.redAccent,
       duration: Duration(seconds: 2),
     ));

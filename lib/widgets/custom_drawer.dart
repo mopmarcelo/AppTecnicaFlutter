@@ -9,8 +9,9 @@ import 'drawer_menu.dart';
 
 class CustomDrawer extends StatefulWidget {
   final PageController pageController;
+  VoidCallback onSeach;
 
-  CustomDrawer(this.pageController);
+  CustomDrawer(this.pageController, this.onSeach);
 
   @override
   _CustomDrawerState createState() => _CustomDrawerState();
@@ -18,6 +19,7 @@ class CustomDrawer extends StatefulWidget {
 
 class _CustomDrawerState extends State<CustomDrawer> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  VoidCallback onSeach;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final dtIniC = TextEditingController();
@@ -31,9 +33,14 @@ class _CustomDrawerState extends State<CustomDrawer> {
   final nmBeneficiarioC = TextEditingController();
 
   int _ddlTipo;
+  String _hintTipo = "Tipo de Agendamento";
   int _ddlStatus;
+  String _hintStatus = "Status";
   String _ddlPeriodo;
+  String _hintPeriodo = "Período";
   int _ddlLocal;
+  String _hintLocal = "Local";
+  int count = 0;
 
   StoreModel _storeModel;
 
@@ -41,11 +48,14 @@ class _CustomDrawerState extends State<CustomDrawer> {
   void initState() {
     super.initState();
 
+    onSeach = widget.onSeach;
+
     setState(() {
       dtIniC.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
       dtFimC.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -60,10 +70,11 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 child: ScopedModelDescendant<StoreModel>(
                   builder: (context, child, model){
                     this._storeModel = model;
-                    if (model.dtIni != null){
+
+                    if (model.dtIni != null && count == 0){
                       dtIniC.text = DateFormat('dd/MM/yyyy').format(model.dtIni);
                     }
-                    if (model.dtFim != null){
+                    if (model.dtFim != null  && count == 0){
                       dtFimC.text = DateFormat('dd/MM/yyyy').format(model.dtFim);
                     }
                     if (model.dsPlaca != null && model.dsPlaca != ""){
@@ -75,6 +86,19 @@ class _CustomDrawerState extends State<CustomDrawer> {
                     if (model.nmBeneficiario != null && model.nmBeneficiario != ""){
                       nmBeneficiarioC.text = model.nmBeneficiario;
                     }
+                    if (model.cdTipoAgendamento != null && model.cdTipoAgendamento > 0 && count == 0){
+                      _ddlTipo = model.cdTipoAgendamento;
+                    }
+                    if (model.cdStatus != null && model.cdStatus > 0 && count == 0){
+                      _ddlStatus = model.cdStatus;
+                    }
+                    if (model.cdLocalInstalacao != null && model.cdLocalInstalacao > 0 && count == 0){
+                      _ddlLocal = model.cdLocalInstalacao;
+                    }
+                    if (model.dsPeriodo != null && model.dsPeriodo != "" && count == 0){
+                      _ddlPeriodo = model.dsPeriodo;
+                    }
+                    count = 1;
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -123,9 +147,6 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                           String formattedDate =
                                           DateFormat('dd/MM/yyyy')
                                               .format(pickedDate);
-                                          model.dtIni = pickedDate;
-
-                                          print(model.dtIni);
 
                                           setState(() {
                                             dtIniC.text = formattedDate;
@@ -156,7 +177,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                             context: context,
                                             locale: const Locale('pt', 'PT'),
                                             initialDate: model.dtFim != null
-                                                ? DateFormat('dd/MM/yyyy').format(model.dtFim)
+                                                ? model.dtFim
                                                 : DateTime.now(),
                                             firstDate: DateTime(2000),
                                             lastDate: DateTime(2023));
@@ -164,7 +185,6 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                           String formattedDate =
                                           DateFormat('dd/MM/yyyy')
                                               .format(pickedDate);
-                                          model.dtFim = pickedDate;
 
                                           setState(() {
                                             dtFimC.text = formattedDate;
@@ -175,13 +195,11 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                     Container(
                                       child: DropdownButton<int>(
                                         isExpanded: true,
-                                        hint: _ddlTipo == null || _ddlTipo == 0
-                                            ? Text("Tipo de Agendamento",style:
-                                        TextStyle(color: Colors.black54, fontSize: 14.0))
-                                            : Text(
-                                          model.getHintTipo(_ddlTipo),
-                                          style:
-                                          TextStyle(color: Colors.black, fontSize: 14.0),
+                                        hint: Text(
+                                          _hintTipo,
+                                          style: _ddlTipo == null || _ddlTipo == 0
+                                          ? TextStyle(color: Colors.black54, fontSize: 14.0)
+                                          : TextStyle(color: Colors.black, fontSize: 14.0),
                                         ),
                                         underline: Container(
                                           decoration: ShapeDecoration(
@@ -190,16 +208,16 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                                     color: Colors.black54)),
                                           ),
                                         ),
-                                        value: model.cdTipoAgendamento,
+                                        value: _ddlTipo,
                                         items: model.getTipoAgendamento().map((Map<String, dynamic> value) {
                                           return DropdownMenuItem<int>(
                                               value: value["value"],
                                               child: Text(value["key"], style: TextStyle(fontSize: 14.0),));
                                         }).toList(),
                                         onChanged: (val) {
-                                          model.cdTipoAgendamento = val == 0 ? null : val;
                                           setState(() {
                                             _ddlTipo = val == 0 ? null : val;
+                                            _hintTipo = model.getHintTipo(_ddlTipo);
                                           });
                                         },
                                       ),
@@ -207,9 +225,11 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                     Container(
                                       child: DropdownButton<int>(
                                         isExpanded: true,
-                                        hint: _ddlStatus == null || _ddlStatus == 0
-                                            ? Text("Status",style:TextStyle(color: Colors.black54, fontSize: 14.0))
-                                            : Text(model.getDsStatus(_ddlStatus),style:TextStyle(color: Colors.green, fontSize: 14.0),
+                                        hint: Text(
+                                          _hintStatus,
+                                          style: _ddlStatus == null || _ddlStatus == 0
+                                              ? TextStyle(color: Colors.black54, fontSize: 14.0)
+                                              : TextStyle(color: Colors.black, fontSize: 14.0),
                                         ),
                                         underline: Container(
                                           decoration: ShapeDecoration(
@@ -218,16 +238,16 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                                     color: Colors.black54)),
                                           ),
                                         ),
-                                        value: model.cdStatus,
+                                        value: _ddlStatus,
                                         items: model.getStatusAgendamento().map((Map<String, dynamic> value) {
                                           return DropdownMenuItem<int>(
-                                              value: value["value"],
-                                              child: Text(value["key"], style: TextStyle(fontSize: 14.0)));
+                                              value: value["NR_STATUS_AGENDAMENTO"],
+                                              child: Text(value["DS_STATUS_AGENDAMENTO"], style: TextStyle(fontSize: 14.0)));
                                         }).toList(),
                                         onChanged: (val) {
-                                          model.cdStatus = val == 0 ? null : val;
                                           setState(() {
                                             _ddlStatus = val == 0 ? null : val;
+                                            _hintStatus = model.getDsStatus(val);
                                           });
                                         },
                                       ),
@@ -235,12 +255,11 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                     Container(
                                       child: DropdownButton<String>(
                                         isExpanded: true,
-                                        hint: _ddlPeriodo == null
-                                            ? Text("Período",style:
-                                        TextStyle(color: Colors.black54, fontSize: 14.0))
-                                            : Text(_ddlPeriodo == "Selecione" ? "Período" : _ddlPeriodo,
-                                          style:
-                                          TextStyle(color: Colors.black, fontSize: 14.0),
+                                        hint: Text(
+                                          _hintPeriodo,
+                                          style: _ddlPeriodo == null || _ddlPeriodo == "Selecione..."
+                                              ? TextStyle(color: Colors.black54, fontSize: 14.0)
+                                              : TextStyle(color: Colors.black, fontSize: 14.0),
                                         ),
                                         underline: Container(
                                           decoration: ShapeDecoration(
@@ -249,16 +268,16 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                                     color: Colors.black54)),
                                           ),
                                         ),
-                                        value: model.dsPeriodo,
+                                        value: _ddlPeriodo,
                                         items: model.getPeriodo().map((String value) {
                                           return DropdownMenuItem<String>(
                                               value: value,
                                               child: Text(value, style: TextStyle(fontSize: 14.0),));
                                         }).toList(),
                                         onChanged: (val) {
-                                          model.dsPeriodo = val  == "Selecione..." ? null : val;
                                           setState(() {
                                             _ddlPeriodo = val == "Selecione..." ? null : val;
+                                            _hintPeriodo = val == "Selecione..." ? "Período" : val;
                                           });
                                         },
                                       ),
@@ -266,12 +285,11 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                     Container(
                                       child: DropdownButton<int>(
                                         isExpanded: true,
-                                        hint: _ddlLocal == null || _ddlLocal == -1
-                                            ? Text("Local de Instalação",style:
-                                        TextStyle(color: Colors.black54, fontSize: 14.0))
-                                            : Text(model.getDsLocal(_ddlLocal),
-                                          style:
-                                          TextStyle(color: Colors.black, fontSize: 14.0),
+                                        hint: Text(
+                                          _hintLocal,
+                                          style: _ddlLocal == null || _ddlLocal == 0
+                                              ? TextStyle(color: Colors.black54, fontSize: 14.0)
+                                              : TextStyle(color: Colors.black, fontSize: 14.0),
                                         ),
                                         underline: Container(
                                           decoration: ShapeDecoration(
@@ -280,16 +298,16 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                                     color: Colors.black54)),
                                           ),
                                         ),
-                                        value: model.cdLocalInstalacao,
+                                        value: _ddlLocal,
                                         items: model.getLocal().map((Map<String, dynamic> value) {
                                           return DropdownMenuItem<int>(
                                               value: value["value"],
                                               child: Text(value["key"], style: TextStyle(fontSize: 14.0)));
                                         }).toList(),
                                         onChanged: (val) {
-                                          model.cdLocalInstalacao = val == 0 ? null : val;
                                           setState(() {
                                             _ddlLocal = val == 0 ? null : val;
+                                            _hintLocal = model.getDsLocal(val);
                                           });
                                         },
                                       ),
@@ -327,9 +345,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                       style: TextStyle(color: Colors.black, fontSize: 14.0),
                                       controller: placaC,
                                       keyboardType: TextInputType.text,
-                                      onChanged: (text){
-                                        model.dsPlaca = text;
-                                      },
+                                      onChanged: (text){},
                                     ),
                                     TextFormField(
                                       decoration: InputDecoration(
@@ -346,9 +362,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                       style: TextStyle(color: Colors.black, fontSize: 14.0),
                                       controller: chassiC,
                                       keyboardType: TextInputType.text,
-                                      onChanged: (text){
-                                        model.dsChassi = text;
-                                      },
+                                      onChanged: (text){},
                                     ),
                                   ],
                                 )),
@@ -383,9 +397,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                                       style: TextStyle(color: Colors.black, fontSize: 14.0),
                                       controller: nmBeneficiarioC,
                                       keyboardType: TextInputType.text,
-                                      onChanged: (text){
-                                        model.nmBeneficiario = text;
-                                      },
+                                      onChanged: (text){},
                                     ),
                                   ],
                                 )),
@@ -413,7 +425,19 @@ class _CustomDrawerState extends State<CustomDrawer> {
             currentIndex: 0,
             onTap: (int index){
               if (index == 0){
-                this._storeModel.getAgendamentos();
+                this._storeModel.dtIni = DateFormat('dd/MM/yyyy').parse(dtIniC.text);
+                this._storeModel.dtFim = DateFormat('dd/MM/yyyy').parse(dtFimC.text);
+                this._storeModel.cdTipoAgendamento = _ddlTipo == 0 ? null : _ddlTipo;
+                this._storeModel.cdStatus = _ddlStatus == 0 ? null : _ddlStatus;
+                this._storeModel.dsPeriodo = _ddlPeriodo  == "Selecione..." ? null : _ddlPeriodo;
+                this._storeModel.cdLocalInstalacao = _ddlLocal == 0 ? null : _ddlLocal;
+                this._storeModel.cdLocalInstalacao = _ddlLocal == 0 ? null : _ddlLocal;
+                this._storeModel.dsPlaca = placaC.text == "" ? null : placaC.text;
+                this._storeModel.dsChassi = chassiC.text == "" ? null : chassiC.text;
+                this._storeModel.nmBeneficiario = nmBeneficiarioC.text == "" ? null : nmBeneficiarioC.text;
+
+                onSeach();
+                Navigator.pop(context);
               }
               else if (index == 1){
                 setState(() {
@@ -436,7 +460,6 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   chassiC.text = "";
                   nmBeneficiarioC.text = "";
                 });
-
               }
             },
             items: const <BottomNavigationBarItem>[
@@ -459,5 +482,4 @@ class _CustomDrawerState extends State<CustomDrawer> {
       ),
     );
   }
-
 }
